@@ -1,64 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/index.module.css";
-import HomeTab from "./home";
+import Loading from "../components/Loading";
+import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 
-export default function Index() {
-  const [username, setUserName] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [token, setToken] = useState<string>("");
-  const [data, setResponseData] = useState<object>({});
-  const verifyLogin = (res: object) => {
-    res == null ? alert("incorrect username or password") : res;
-  };
-  const userLogin = async (e) => {
-    e.preventDefault();
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        identifier: username,
-        password: password,
-      }),
-    };
-    try {
-      const res = await fetch(
-        "http://localhost:1337/auth/local",
-        requestOptions
-      ).then((r) => (r.status == 200 ? r.json() : null));
-      verifyLogin(res);
-      setToken(res.jwt);
-      setResponseData(res.user);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+export default function Home() {
+  const [articlesList, setArticlesList] = useState([]);
+  useEffect(() => {
+    fetch("http://localhost:1337/articles")
+      .then((response) => response.json())
+      .then((data) => setArticlesList(data));
+  }, []);
+
   return (
     <>
-      {token ? (
-        <div>
-          <HomeTab />
+      {articlesList ? (
+        <div className={styles[`main-section`]}>
+          {articlesList.map((articles) => {
+            const date = new Date(articles.updated_at);
+            return (
+              <Link href={`/article/${articles.id}`} key={articles.id}>
+                <div className={styles[`blogs-section`]}>
+                  <div className={styles["title-section"]}>
+                    <h1 className="article-title">
+                      {articles.title.toUpperCase()}
+                    </h1>
+                    <img
+                      src={`http://localhost:1337${articles.image.formats.small.url}`}
+                      alt="#"
+                    ></img>
+                    <p className="upload-date">
+                      {articles.author.name} | {date.toUTCString()}
+                    </p>
+                  </div>
+                  <ReactMarkdown
+                    skipHtml={true}
+                    children={articles.description}
+                    className={styles["content-section"]}
+                    components={articles}
+                  />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       ) : (
-        <div className={styles[`home-body`]}>
-          <form className={styles[`login-form`]} onSubmit={userLogin}>
-            <p>Login</p>
-            <input
-              placeholder="Please enter your user name"
-              className={styles["form-input"]}
-              type="Text"
-              value={username}
-              onChange={(e) => setUserName(e.currentTarget.value)}
-            />
-            <input
-              placeholder="Please enter your password"
-              className={styles["form-input"]}
-              type="Password"
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
-            />
-            <input className={styles["form-submit"]} type="submit" />
-          </form>
-        </div>
+        <Loading />
       )}
     </>
   );
