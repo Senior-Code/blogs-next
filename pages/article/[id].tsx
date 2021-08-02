@@ -17,14 +17,11 @@ export default function Article() {
       message: message,
       article: Number(id),
       name: name,
-      users_permissions_user: 1,
     };
     const Post = {
       method: "POST",
-      json: true,
       body: JSON.stringify(data),
       headers: {
-        Accept: "application/json",
         "Content-Type": "application/json",
       },
     };
@@ -96,7 +93,11 @@ export default function Article() {
                 value={message}
                 onChange={(e) => setMessage(e.currentTarget.value)}
               />
-              <button type="submit" onClick={onSubmitHandle}>
+              <button
+                className={styles["btn-comment"]}
+                type="submit"
+                onClick={onSubmitHandle}
+              >
                 Comment
               </button>
             </div>

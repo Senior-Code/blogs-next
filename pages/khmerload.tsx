@@ -1,14 +1,26 @@
 import { useState } from "react";
 import styles from "../styles/khmerload.module.css";
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
+import {
+  ApolloClient,
+  ApolloProvider,
+  gql,
+  InMemoryCache,
+  useQuery,
+} from "@apollo/client";
+import Loading from "../components/Loading";
 
-export default function Khmerload() {
+const client = new ApolloClient({
+  cache: new InMemoryCache(),
+  uri: "https://graph-beta.ml.groupincorp.com/",
+});
+
+function Khmerload() {
   const [page, setPage] = useState(1);
   const [view, setView] = useState(5);
   const [extend, setExtend] = useState(false);
   const handleExtend = () => {
     setExtend(!extend);
-    console.log(extend);
   };
   const handleView = (value) => {
     setView(value);
@@ -20,6 +32,25 @@ export default function Khmerload() {
   const handlePreviousPage = () => {
     page == 1 ? setPage(1) : setPage(page - 1);
   };
+  const Query = gql`
+    query ($page: Int!, $pageSize: Int!) {
+      articleList(pagination: { page: $page, size: $pageSize }) {
+        data {
+          summary
+          id
+          title
+          content
+        }
+      }
+    }
+  `;
+  const { loading, error, data } = useQuery(Query, {
+    variables: {
+      page: page,
+      pageSize: view,
+    },
+  });
+  console.log(data);
   return (
     <>
       <div className={styles["header-section"]}>
@@ -53,11 +84,25 @@ export default function Khmerload() {
           </button>
         </div>
       </div>
-      <div className={styles["articles-section"]}>
-        <div>
-          <div></div>
-        </div>
-      </div>
+      {data ? (
+        <>
+          <div className={styles["articles-section"]}>
+            <div>
+              <div></div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <Loading />
+      )}
     </>
+  );
+}
+
+export default function KhmerloadPage() {
+  return (
+    <ApolloProvider client={client}>
+      <Khmerload />
+    </ApolloProvider>
   );
 }
