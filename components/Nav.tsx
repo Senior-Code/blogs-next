@@ -32,7 +32,7 @@ export default function Header() {
             <Link href="/articles">ARTICLES</Link>
           </li>
           <li className={styles.tabli}>
-            <Link href="/aboutme">ABOUT ME</Link>
+            <Link href="/khmerload">KHMERLOAD</Link>
           </li>
         </ul>
       </div>

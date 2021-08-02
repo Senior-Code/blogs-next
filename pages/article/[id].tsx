@@ -97,14 +97,16 @@ export default function Article() {
                 onChange={(e) => setMessage(e.currentTarget.value)}
               />
               <button type="submit" onClick={onSubmitHandle}>
-                Post
+                Comment
               </button>
             </div>
             {comment.length != 0 ? (
               comment.map((comment) => {
                 return (
                   <div className={styles["user-comment"]} key={comment.id}>
-                    <p>{comment.name.toUpperCase()}</p>
+                    <p className={styles["comment-profile"]}>
+                      {comment.name.toUpperCase()}
+                    </p>
                     <div className={styles["user-profile"]}>
                       <p>{comment.message}</p>
                     </div>
