@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../styles/khmerload.module.css";
 import { IoMdArrowDropleft, IoMdArrowDropright } from "react-icons/io";
 import {
@@ -19,6 +19,7 @@ function Khmerload() {
   const [page, setPage] = useState(1);
   const [view, setView] = useState(5);
   const [extend, setExtend] = useState(false);
+  const [articleList, setArticleList] = useState([]);
   const handleExtend = () => {
     setExtend(!extend);
   };
@@ -44,13 +45,15 @@ function Khmerload() {
       }
     }
   `;
-  const { loading, error, data } = useQuery(Query, {
+  const { error, data } = useQuery(Query, {
     variables: {
       page: page,
       pageSize: view,
     },
   });
-  console.log(data);
+  useEffect(() => {
+    if (data) setArticleList(data.articleList.data);
+  }, [data]);
   return (
     <>
       <div className={styles["header-section"]}>
@@ -71,7 +74,7 @@ function Khmerload() {
               flexDirection: "row",
               position: "absolute",
               right: 50,
-              background: "#fff",
+              height: 40,
             }}
             className={styles[extend ? "content-show" : "content-hide"]}
           >
@@ -87,9 +90,35 @@ function Khmerload() {
       {data ? (
         <>
           <div className={styles["articles-section"]}>
-            <div>
-              <div></div>
-            </div>
+            {articleList.map((article) => {
+              const objectContent = JSON.parse(article.content);
+              let content = "";
+              objectContent.blocks.map((e, i) => {
+                e.data.text
+                  ? (content += `<br /> ${e.data.text} <br /> `)
+                  : null;
+                e.data.file
+                  ? (content += `<br /> <Image src="${e.data.file.url}" width=80% /> <br />`)
+                  : null;
+              });
+              return (
+                <div className={styles["article-blog"]} key={article.id}>
+                  <div className={styles["article-title"]}>{article.title}</div>
+                  <div className={styles["article-content"]}>
+                    <div
+                      style={{ textAlign: "justify" }}
+                      dangerouslySetInnerHTML={{
+                        __html: content,
+                      }}
+                    >
+                      {/* {objectContent.blocks.map((e) =>
+                        e.data.text ? e.data.text : null
+                      )} */}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </>
       ) : (
@@ -98,7 +127,6 @@ function Khmerload() {
     </>
   );
 }
-
 export default function KhmerloadPage() {
   return (
     <ApolloProvider client={client}>

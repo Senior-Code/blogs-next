@@ -26,3 +26,7 @@ a {
   font-family: "BeautyMountain";
   src: url(../Resources/BeautyMountain.ttf);
 }
+@font-face {
+  font-family: "Khmer OS";
+  src: url(../Resources/khmeros_siemreap.ttf);
+}
